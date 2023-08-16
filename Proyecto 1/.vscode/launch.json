@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [ 
+        {
+            "name": "Python: módulo actual",
+            "type": "python",
+            "request": "launch",
+            "module": "main",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}
