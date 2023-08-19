@@ -6,9 +6,12 @@ import Structs
 import struct
 import main as main
 
+
 class Disk:
     def __init__(self):
         pass
+
+
 
     @staticmethod
     def validarDatos(tokens):
@@ -286,7 +289,6 @@ class Disk:
     @staticmethod
     def generarParticion(s, u, p, t, f, n, a):
         try:
-            startValue = 0
             i = int(s)
             if i <= 0:
                 raise RuntimeError("-size debe de ser mayor que 0")
@@ -381,7 +383,7 @@ class Disk:
             
             try:
                 Disk.buscarParticiones(mbr, n, p)
-                print("FDISK", " Este nombre ya esta en uso")
+                print("FDISK", "El nombre: "+n+" ya existe en el disco")
                 return
             except Exception as e:
                 print(e)
@@ -393,35 +395,104 @@ class Disk:
             temporal.part_fit = f[0].upper()
             temporal.part_name = n
             
-            if t.lower() == "l":
-                print("Crear particion logica")
-                #logica(temporal, extended, p)
+            if t.lower() == "l": 
+                Disk.logica(temporal, extended, p)
                 return
             
-            print("Crear particion primaria o extendida")
             mbr = Disk.ajustar(mbr, temporal, between, partitions, used)
             with open(p, "rb+") as bfile:
                 bfile.write(mbr.__bytes__())
                 if t.lower() == "e":
                     ebr = Structs.EBR()
-                    ebr.part_start = startValue
+                    ebr.part_start = startValue 
                     bfile.seek(startValue, 0)
                     bfile.write(ebr.__bytes__())
                     print("FDISK", "partición extendida:", n, "creada correctamente")
                     return
                 print("FDISK", "partición primaria:", n, "creada correctamente")
-        except ValueError as e:
-            print(e)
+        except ValueError as e: 
             print("FDISK", "-size debe ser un entero")
-        except Exception as e:
-            print(str(e))
+        except Exception as e: 
             print("FDISK", str(e))
 
+    @staticmethod
+    def get_particiones(disco):
+        particiones = []
+        particiones.append(disco.mbr_Partition_1)
+        particiones.append(disco.mbr_Partition_2)
+        particiones.append(disco.mbr_Partition_3)
+        particiones.append(disco.mbr_Partition_4)
+        return particiones
+
+    @staticmethod
+    def get_logicas(partition, p):
+        ebrs = []
+
+        with open(p, "rb+") as file:
+            start_position = partition.part_start -1
+            if start_position < 0:
+                start_position = 0
+                
+            file.seek(start_position, 0)
+            tmp_data = file.read(struct.calcsize("c2s3i3i16s"))
+
+            while len(tmp_data) == struct.calcsize("c2s3i3i16s"):
+                tmp = Structs.EBR()
+                tmp.__setstate__(tmp_data)
+                if tmp.part_next != -1 :
+                    ebrs.append(tmp)
+                    file.seek(tmp.part_next-1, 0)
+                    tmp_data = file.read(struct.calcsize("c2s3i3i16s"))
+                else:
+                    break
+
+        return ebrs
+
+    @staticmethod
+    def logica(partition, ep, p):
+        nlogic = Structs.EBR()
+        nlogic.part_status = '1'
+        nlogic.part_fit = partition.part_fit
+        nlogic.part_size = partition.part_size
+        nlogic.part_next = -1
+        nlogic.part_name = partition.part_name
+
+        with open(p, "rb+") as file:
+            file.seek(0)
+            tmp = Structs.EBR()
+            file.seek(ep.part_start -1)
+            tmp_data = file.read(struct.calcsize("c2s3i3i16s"))
+            tmp.__setstate__(tmp_data)
+            size = 0
+            while True:
+                size += struct.calcsize("c2s3i3i16s") + tmp.part_size
+                if (tmp.part_status == '0' or tmp.part_status == '\x00') and tmp.part_next == -1:
+                    nlogic.part_start = tmp.part_start
+                    nlogic.part_next = nlogic.part_start + nlogic.part_size + struct.calcsize("c2s3i3i16s")
+                    if (ep.part_size - size) <= nlogic.part_size:
+                        raise RuntimeError("no hay espacio para más particiones lógicas")
+                    file.seek(nlogic.part_start-1) 
+                    file.write(nlogic.__bytes__())
+                    file.seek(nlogic.part_next)
+                    addLogic = Structs.EBR()
+                    addLogic.part_status = '0'
+                    addLogic.part_next = -1
+                    addLogic.part_start = nlogic.part_next
+                    file.seek(addLogic.part_start)
+                    file.write(addLogic.__bytes__())
+                    name = nlogic.part_name
+                    print(f"partición lógica: {name}, creada correctamente.")
+                    return
+                file.seek(tmp.part_next-1)
+                tmp_data = file.read(struct.calcsize("c2s3i3i16s"))
+                tmp.__setstate__(tmp_data)
+    
     @staticmethod
     def ajustar(mbr, p, t, ps, u):
         if u == 0:
             p.part_start = sys.getsizeof(mbr)
             startValue = p.part_start
+            update_start_value(p.part_start)
             mbr.mbr_Partition_1 = p
             return mbr
         else:
@@ -471,9 +542,11 @@ class Disk:
                     if usar.before >= p.part_size:
                         p.part_start = (usar.start - usar.before)
                         startValue = p.part_start
+                        update_start_value(p.part_start)
                     else:
                         p.part_start = usar.end
                         startValue = p.part_start
+                        update_start_value(p.part_start)
                 elif mbr.disk_fit[0].upper() == 'B':
                     b1 = usar.before - p.part_size
                     a1 = usar.after - p.part_size
@@ -481,9 +554,11 @@ class Disk:
                     if (usar.before >= p.part_size and b1 < a1) or usar.after < p.part_start:
                         p.part_start = (usar.start - usar.before)
                         startValue = p.part_start
+                        update_start_value(p.part_start)
                     else:
                         p.part_start = usar.end
                         startValue = p.part_start
+                        update_start_value(p.part_start)
                 elif mbr.disk_fit[0].upper() == 'W':
                     b1 = usar.before - p.part_size
                     a1 = usar.after - p.part_size
@@ -491,9 +566,11 @@ class Disk:
                     if (usar.before >= p.part_size and b1 > a1) or usar.after < p.part_start:
                         p.part_start = (usar.start - usar.before)
                         startValue = p.part_start
+                        update_start_value(p.part_start)
                     else:
                         p.part_start = usar.end
                         startValue = p.part_start
+                        update_start_value(p.part_start)
 
                 partitions = [Structs.Particion() for _ in range(4)]
 
@@ -527,7 +604,7 @@ class Disk:
                         extended = partition
 
             if ext:
-                ebrs = Disk.GetLogicas(extended, path)
+                ebrs = Disk.get_logicas(extended, path)
                 for ebr in ebrs:
                     if ebr.part_status == '1':
                         if ebr.part_name == name:
@@ -541,11 +618,8 @@ class Disk:
                             return tmp
             raise RuntimeError("Creando la partición: " + name + "...")
 
-    @staticmethod
-    def get_particiones(disco):
-        particiones = []
-        particiones.append(disco.mbr_Partition_1)
-        particiones.append(disco.mbr_Partition_2)
-        particiones.append(disco.mbr_Partition_3)
-        particiones.append(disco.mbr_Partition_4)
-        return particiones
+
+def update_start_value(new_value):
+    global startValue
+    startValue = new_value
+    
