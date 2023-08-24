@@ -11,8 +11,6 @@ class Disk:
     def __init__(self):
         pass
 
-
-
     @staticmethod
     def validarDatos(tokens):
         size = ""

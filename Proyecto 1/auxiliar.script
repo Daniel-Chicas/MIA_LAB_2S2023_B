@@ -2,57 +2,27 @@
 
 #CREACION DE DISCOS
 
-mkdisk -size=75 -unit=M -path=/tmp/d1.dk               #disco con primer ajuste
-mkdisk -unit=K -path=/tmp/d2.dk -fit=BF -size=10240      #tamaño de 10mb
-mkdisk -size=101 -path=/tmp/d3.dk -f=WF             #error parametro incorrecto debe ser fit
-mkdisk -size=101 -path=/tmp/d3.dk -fit=WF             #debe crear disco en MB
-mkdisk -size=1 -path="/tmp/eliminar 1.dk"
-mkdisk -size=1 -path="/tmp/eliminar 2.dk"
+#mkdisk -size=75 -unit=M -path=/tmp/d1.dk               #disco con primer ajuste 
 
 #CREACION DE PARTICIONES PRIMARIAS Y EXTENDIDAS
 
 #Crear particiones d1.dk
-fdisk -type=P -unit=M -name=Part1 -size=15 -path=/tmp/d1.dk
-fdisk -type=P -unit=M -name=Part2 -size=20 -path=/tmp/d1.dk 
-fdisk -type=E -unit=M -name=Part3 -size=5 -path=/tmp/d1.dk  -fit=FF
-fdisk -type=L -unit=M -name=Part4 -size=1 -path=/tmp/d1.dk
-fdisk -type=L -unit=M -name=Part5 -size=1 -path=/tmp/d1.dk
-fdisk -type=L -unit=M -name=Part6 -size=2 -path=/tmp/d1.dk
-fdisk -type=L -unit=M -name=Part7 -size=2 -path=/tmp/d1.dk
+#fdisk -type=P -unit=M -name=Part1 -size=15 -path=/tmp/d1.dk
+#fdisk -type=P -unit=M -name=Part2 -size=20 -path=/tmp/d1.dk 
+#fdisk -type=E -unit=M -name=Part3 -size=5 -path=/tmp/d1.dk  -fit=FF
+#fdisk -type=L -unit=M -name=Part4 -size=1 -path=/tmp/d1.dk
+#fdisk -type=L -unit=M -name=Part5 -size=1 -path=/tmp/d1.dk
+#fdisk -type=L -unit=M -name=Part6 -size=2 -path=/tmp/d1.dk 
 
 
-pause
+#pause 
 
-#Crear particiones d2.dk
-fdisk -type=L -unit=M -name=Part6 -size=25 -path=/tmp/d2.dk  #error, no existe extendida
-fdisk -type=E -unit=M -name=Part1 -size=9 -path=/tmp/d2.dk  -fit=FF    #ocunitpa los 10MB del disco
-fdisk -type=E -unit=M -name=Part7 -size=25 -path=/tmp/d2.dk  -fit=WF    #error, ya existe unitna extendida
-fdisk -type=L -unit=B -name=Part2 -size=1024 -path=/tmp/d2.dk 
-fdisk -type=L -unit=B -name=Part3 -size=1024 -path=/tmp/d2.dk
-fdisk -type=L -unit=B -name=Part4 -size=1024 -path=/tmp/d2.dk
+#MOUNT CARNET DE EJEMPLO 201807079
+mount -path=/tmp/d1.dk -name=Part1 #791a
+mount -path=/tmp/d1.dk -name=Part2 #791b  
+mount -path=/tmp/d1.dk -name=Part4 #791c 
 
-pause
-
-#Crear particiones d3.dk
-fdisk -type=E -unit=M -name=Part1 -size=25 -path=/tmp/d3.dk  -fit=BF
-fdisk -type=P -unit=M -name=Part2 -size=25 -path=/tmp/d3.dk  -fit=BF
-fdisk -type=P -unit=M -name=Part3 -size=25 -path=/tmp/d3.dk  -fit=BF
-fdisk -type=P -unit=M -name=Part4 -size=25 -path=/tmp/d3.dk  -fit=BF
-fdisk -type=P -unit=M -name=Part1 -size=25 -path=/tmp/d3.dk  -fit=BF #error, ya existen 4 particiones
-fdisk -type=L -unit=K -name=Part5 -size=1024 -path=/tmp/d3.dk  -fit=BF
-fdisk -type=L -unit=K -name=Part6 -size=1024 -path=/tmp/d3.dk  -fit=BF
-
-pause
-
-#CAMBIO DE TAMAÑO  DE PARTICIONES
-fdisk -add=-30 -unit=m -name=Part1 -path=/tmp/d1.dk #error, solo tiene 25mb de size
-fdisk -add=45 -unit=m -name=Part3 -path=/tmp/d1.dk #error, no hay espacio 
-fdisk -add=-20 -unit=m -name=Part1 -path=/tmp/d1.dk
-fdisk -add=20 -unit=m -name=Part3 -path=/tmp/d1.dk 
-
-#ELIMINACION DE DISCOS
-
-rmdisk -path="/home/a eliminar disco/no_existo.dk"                #debe de mostrar error por no existir
-rmdisk -path="/tmp/eliminar 1.dk"                                 #verificar mensaje de eliminacion darle si
-rmdisk -path="/tmp/eliminar 2.dk"                                 #verificar mensaje de eliminacion darle si
- 
+#UNMOUNT
+unmount -id=791a
+unmount -id=791b
+unmount -id=791c

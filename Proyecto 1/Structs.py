@@ -87,7 +87,18 @@ class EBR:
         self.part_next = struct.unpack("<i", data[10:14])[0]
         self.part_name = data[14:30].decode('utf-8').rstrip('\0')
 
-        
+class ParticionMontada:
+    def __init__(self):
+        self.letra = ''
+        self.estado = '0'
+        self.nombre = ''
+
+class DiscoMontado:
+    def __init__(self):
+        self.path = ''
+        self.estado = '0'
+        self.particiones = [ParticionMontada() for _ in range(26)]
+
 class Inodos:
     def __init__(self):
         self.i_uid = -1

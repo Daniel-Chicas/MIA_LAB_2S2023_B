@@ -1,8 +1,12 @@
 import os
 import disk as disk
+import mount as mount
  
 #exec -path=C:/Users/danie/Desktop/EJEMPLOS_MIA_2S2023/Ejemplo#1 Analizador/auxiliar.script
 #exec -path="E:/REPOSITORIOS/MIA_PYTHON/MIA_LAB_2S2023_B/Proyecto 1/auxiliar.script"
+
+
+mountInstance = mount.Mount() 
 
 class Scanner:
     def __init__(self):
@@ -100,22 +104,27 @@ class Scanner:
             elif token.upper() == "RMDISK":
                 print("************** FUNCION RMDISK **************")
                 disk.Disk.rmdisk(tks)
-                print("\n")
-            elif token.upper() == "REP":
-                print("************** FUNCION REP **************")
-                #disk.Disk.rep(tks)
-            elif token.startswith("#"):
-                print("************** COMENTARIO **************")
-                print(token)
-                print("\n")
-            elif token.upper() == "EXEC":
-                print("************** FUNCION EXEC **************")
-                print("\n")
-                self.funcion_excec(tks)
+                print("\n") 
             elif token.upper() == "FDISK":
                 print("************** FUNCION FDISK **************")
                 print("\n")
                 disk.Disk.fdisk(tks)
+            elif token.upper() == "EXEC":
+                print("************** FUNCION EXEC **************")
+                print("\n")
+                self.funcion_excec(tks)
+            elif token.upper() == "MOUNT":
+                print("************** FUNCION MOUNT **************")
+                print("\n") 
+                mountInstance.validarDatos(tks)
+            elif token.upper() == "UNMOUNT":
+                print("************** FUNCION UNMOUNT **************")
+                print("\n")
+                mountInstance.validarDatosU(tks)
+            elif token.startswith("#"):
+                print("************** COMENTARIO **************")
+                print(token)
+                print("\n")
             else:
                 print("\tERROR: No se reconoce el comando: " + token)
 
