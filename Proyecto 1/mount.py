@@ -157,7 +157,7 @@ class Mount:
             print("UNMOUNT", "identificador de disco incorrecto, debe ser entero")
         except Exception as e:
             print("UNMOUNT", e)
- 
+  
     def getmount(self, id, p):
         if not (id[0] == '7' and id[1] == '9'):
             raise RuntimeError("el primer identificador no es válido")
@@ -176,10 +176,27 @@ class Mount:
 
                     disk = Structs.MBR()  # Replace with actual initialization
                     with open(self.discoMontado[i].path, "rb") as validate:
-                        validate.seek(0)
-                        validate.readinto(disk)
-                    p[0] = self.discoMontado[i].path
-                    return Disco.Disk.buscarParticiones(disk, self.discoMontado[i].particiones[j].nombre, self.discoMontado[i].path)
+                        mbr_data = validate.read()
+                        disk.mbr_tamano = struct.unpack("<i", mbr_data[:4])[0]
+                        disk.mbr_fecha_creacion = struct.unpack("<i", mbr_data[4:8])[0]
+                        disk.mbr_disk_signature = struct.unpack("<i", mbr_data[8:12])[0]
+                        disk.disk_fit = mbr_data[12:14].decode('utf-8')
+
+                        partition_size = struct.calcsize("<iii16s")
+                        partition_data = mbr_data[14:14 + partition_size]
+                        disk.mbr_Partition_1.__setstate__(partition_data)
+                        
+                        partition_data = mbr_data[13 + partition_size:14 + 2 * partition_size]
+                        disk.mbr_Partition_2.__setstate__(partition_data)
+                        
+                        partition_data = mbr_data[12 + 2 * partition_size:14 + 3 * partition_size]
+                        disk.mbr_Partition_3.__setstate__(partition_data)
+                        
+                        partition_data = mbr_data[11 + 3 * partition_size:14 + 4 * partition_size]
+                        disk.mbr_Partition_4.__setstate__(partition_data)
+
+                    p = self.discoMontado[i].path
+                    return p, Disco.Disk.buscarParticiones(disk, self.discoMontado[i].particiones[j].nombre, self.discoMontado[i].path)
         raise RuntimeError("partición no existente")
  
     def listaMount(self):

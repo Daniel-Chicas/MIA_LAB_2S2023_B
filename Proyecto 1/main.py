@@ -1,6 +1,7 @@
 import os
 import disk as disk
 import mount as mount
+import mkfs as mkfs
  
 #exec -path=C:/Users/danie/Desktop/EJEMPLOS_MIA_2S2023/Ejemplo#1 Analizador/auxiliar.script
 #exec -path="E:/REPOSITORIOS/MIA_PYTHON/MIA_LAB_2S2023_B/Proyecto 1/auxiliar.script"
@@ -121,6 +122,11 @@ class Scanner:
                 print("************** FUNCION UNMOUNT **************")
                 print("\n")
                 mountInstance.validarDatosU(tks)
+            elif token.upper() == "MKFS": 
+                print("************** FUNCION MKFS **************")
+                print("\n")
+                fileSystem = mkfs.MKFS(mountInstance)
+                fileSystem.mkfs(tks) 
             elif token.startswith("#"):
                 print("************** COMENTARIO **************")
                 print(token)

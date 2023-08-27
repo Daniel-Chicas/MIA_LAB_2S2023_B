@@ -108,7 +108,7 @@ class Inodos:
         self.i_ctime = 0
         self.i_mtime = 0
         self.i_block = [-1] * 15
-        self.i_type = -1
+        self.i_type = 0
         self.i_perm = -1
 
     def __bytes__(self):
@@ -119,7 +119,7 @@ class Inodos:
                 struct.pack("<d", self.i_ctime) +
                 struct.pack("<d", self.i_mtime) +
                 struct.pack("<15i", *self.i_block) +
-                struct.pack("<c", bytes([self.i_type])) +
+                struct.pack("<B", self.i_type) +  # Use "<B" format for a single byte
                 struct.pack("<i", self.i_perm))
     
 class SuperBloque:
@@ -163,11 +163,11 @@ class SuperBloque:
     
 class Content:
     def __init__(self):
-        self.b_name = ''
+        self.b_name = '\x00' * 12
         self.b_inodo = -1
 
     def __bytes__(self):
-        return (self.b_name.encode('utf-8').ljust(12, b'\x00') +
+        return (self.b_name.ljust(12, '\0').encode('utf-8') +
                 struct.pack("<i", self.b_inodo))
     
 class BloquesCarpetas:
@@ -179,10 +179,10 @@ class BloquesCarpetas:
 
 class BloquesArchivos:
     def __init__(self):
-        self.b_content = b'\x00' * 64
+        self.b_content = '\x00' * 64
 
     def __bytes__(self):
-        return self.b_content
+        return self.b_content.ljust(64, '\0').encode('utf-8')
     
 class BloquesApuntadores:
     def __init__(self):

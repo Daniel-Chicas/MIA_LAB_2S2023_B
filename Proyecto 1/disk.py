@@ -318,18 +318,12 @@ class Disk:
                     mbr.mbr_disk_signature = struct.unpack("<i", mbr_data[8:12])[0]
                     mbr.disk_fit = mbr_data[12:14].decode('utf-8')
 
-                    partition_size = struct.calcsize("<iii16s")
+                    partition_size = struct.calcsize("<iii16s")*4
                     partition_data = mbr_data[14:14 + partition_size]
-                    mbr.mbr_Partition_1.__setstate__(partition_data)
-                     
-                    partition_data = mbr_data[13 + partition_size:14 + 2 * partition_size]
-                    mbr.mbr_Partition_2.__setstate__(partition_data)
-                    
-                    partition_data = mbr_data[12 + 2 * partition_size:14 + 3 * partition_size]
-                    mbr.mbr_Partition_3.__setstate__(partition_data)
-                    
-                    partition_data = mbr_data[11 + 3 * partition_size:14 + 4 * partition_size]
-                    mbr.mbr_Partition_4.__setstate__(partition_data)
+                    mbr.mbr_Partition_1.__setstate__(partition_data[0:28]) 
+                    mbr.mbr_Partition_2.__setstate__(partition_data[27:56]) 
+                    mbr.mbr_Partition_3.__setstate__(partition_data[54:84]) 
+                    mbr.mbr_Partition_4.__setstate__(partition_data[81:112])
 
             except Exception as e:
                 print(e)
@@ -488,7 +482,7 @@ class Disk:
     @staticmethod
     def ajustar(mbr, p, t, ps, u):
         if u == 0:
-            p.part_start = sys.getsizeof(mbr)
+            p.part_start = sys.getsizeof(mbr) + struct.calcsize("<iii16s")*4
             startValue = p.part_start
             update_start_value(p.part_start)
             mbr.mbr_Partition_1 = p
