@@ -1,13 +1,15 @@
 import os
-import disk as disk
-import mount as mount
-import mkfs as mkfs
+import disk 
+import mount 
+import mkfs 
+import users  
  
 #exec -path=C:/Users/danie/Desktop/EJEMPLOS_MIA_2S2023/Ejemplo#1 Analizador/auxiliar.script
 #exec -path="E:/REPOSITORIOS/MIA_PYTHON/MIA_LAB_2S2023_B/Proyecto 1/auxiliar.script"
 
 
 mountInstance = mount.Mount() 
+logued = False
 
 class Scanner:
     def __init__(self):
@@ -127,6 +129,43 @@ class Scanner:
                 print("\n")
                 fileSystem = mkfs.MKFS(mountInstance)
                 fileSystem.mkfs(tks) 
+            elif token.upper() == "LOGIN":
+                print("************** FUNCION LOGIN **************")
+                global logued
+                if(logued):
+                    print("Ya hay una sesión activa")
+                else:
+                    logued = users.Usuarios().login(tks, mountInstance)
+            elif token.upper() == "LOGOUT":
+                print("************** FUNCION LOGOUT **************") 
+                if(logued):
+                    logued = users.Usuarios(mountInstance).logout()
+                else:
+                    print("No hay una sesión activa")
+            elif token.upper() == "MKGRP":
+                print("************** FUNCION MKGRP **************")
+                if(logued):
+                    users.Usuarios(mountInstance).validarDatosGrp(tks, "MK")
+                else:
+                    print("No hay una sesión activa")
+            elif token.upper() == "RMGRP":
+                print("************** FUNCION RMGRP **************")
+                if(logued):
+                    users.Usuarios(mountInstance).validarDatosGrp(tks, "RM")
+                else:
+                    print("No hay una sesión activa")
+            elif token.upper() == "MKUSR":
+                print("************** FUNCION MKUSR **************")
+                if(logued):
+                    users.Usuarios(mountInstance).validarDatosusr(tks, "MK")
+                else:
+                    print("No hay una sesión activa")
+            elif token.upper() == "RMUSR":
+                print("************** FUNCION RMUSR **************")
+                if(logued):
+                    users.Usuarios(mountInstance).validarDatosusr(tks, "RM")
+                else:
+                    print("No hay una sesión activa")
             elif token.startswith("#"):
                 print("************** COMENTARIO **************")
                 print(token)

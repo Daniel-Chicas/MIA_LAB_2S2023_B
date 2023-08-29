@@ -26,6 +26,20 @@ mount -path=/tmp/d1.dk -name=Part4 #791c
 #MKFS A PARTICIONES
 mkfs -type=fast -id=791a
 
+login -user=root -pass=123 -id=791a
+
+#mkgrp -name=usuarios
+#mkgrp -name=users
+#rmgrp -name=usuarios
+#rmgrp -name=users
+mkusr -user=user1 -pass=usuario -grp=usuarios 
+rmusr -user=user1 
+
+
+
+logout
+
+login -user=user1 -pass=usuario -id=791a
 
 #UNMOUNT
 #unmount -id=791a
