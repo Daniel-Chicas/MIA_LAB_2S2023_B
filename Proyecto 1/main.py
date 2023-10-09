@@ -27,8 +27,8 @@ class Scanner:
     def confirmar(mensaje):
         respuesta = input(f"{mensaje} (y/n)\n\t").lower()
         return respuesta == "y"
-
-    def comando(self, text):
+ 
+    def comando(text):
         tkn = ""
         terminar = False
         for c in text:
@@ -45,7 +45,7 @@ class Scanner:
                     terminar = True
         return tkn
 
-    def separar_tokens(self, text):
+    def separar_tokens(text):
         tokens = []
         if not text:
             return tokens
@@ -84,7 +84,7 @@ class Scanner:
                 token += c
         return tokens
 
-    def inicio(self):
+    def inicio():
         while True:
             print(">>>>>>>>>>>>>>>>>>>>>>>>> INGRESE UN COMANDO <<<<<<<<<<<<<<<<<<<<<<<<<")
             print("->Si desea terminar con la aplicación ingrese \"exit\"<-")
@@ -92,13 +92,13 @@ class Scanner:
             entrada = "exec -path=\"E:/REPOSITORIOS/MIA_PYTHON/MIA_LAB_2S2023_B/Proyecto 1/auxiliar.script\""
             if entrada.lower() == "exit":
                 break
-            token = self.comando(entrada)
+            token = Scanner.comando(entrada)
             entrada = entrada[len(token) + 1:]
-            tokens = self.separar_tokens(entrada)
-            self.funciones(token, tokens)
+            tokens = Scanner.separar_tokens(entrada)
+            Scanner.funciones(token, tokens)
             input("\nPresione Enter para continuar....")
 
-    def funciones(self, token, tks):
+    def funciones( token, tks):
         if token:
             if token.upper() == "MKDISK":
                 print("************** FUNCION MKDISK **************")
@@ -115,7 +115,7 @@ class Scanner:
             elif token.upper() == "EXEC":
                 print("************** FUNCION EXEC **************")
                 print("\n")
-                self.funcion_excec(tks)
+                Scanner.funcion_excec(tks)
             elif token.upper() == "MOUNT":
                 print("************** FUNCION MOUNT **************")
                 print("\n") 
@@ -172,20 +172,20 @@ class Scanner:
                 print("\n")
             else:
                 print("\tERROR: No se reconoce el comando: " + token)
-
-    def funcion_excec(self, tokens):
+ 
+    def funcion_excec(tokens):
         path = ""
         for token in tokens:
             tk = token[:token.find("=")]
             token = token[len(tk) + 1:]
-            if self.comparar(tk, "path"):
+            if Scanner.comparar(tk, "path"):
                 path = token
         if not path:
             print("\tERROR: Se requiere la propiedad path para el comando EXEC") 
             return
-        self.excec(path)
-
-    def excec(self, path):
+        Scanner.excec(path)
+ 
+    def excec(path):
         filename = path
         lines = []
         with open(filename, "r") as input_file:
@@ -193,15 +193,15 @@ class Scanner:
                 lines.append(line.strip())
         for i in lines:
             texto = i
-            tk = self.comando(texto)
+            tk = Scanner.comando(texto)
             if texto:
-                if self.comparar(texto, "PAUSE"):
+                if Scanner.comparar(texto, "PAUSE"):
                     print("************** FUNCION PAUSE **************")
                     input("Presione enter para continuar...")
                     continue
                 texto = texto[len(tk) + 1:]
-                tks = self.separar_tokens(texto)
-                self.funciones(tk, tks)
+                tks = Scanner.separar_tokens(texto)
+                Scanner.funciones(tk, tks)
 
 if __name__ == "__main__":
     scanner = Scanner()
