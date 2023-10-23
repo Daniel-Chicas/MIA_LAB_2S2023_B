@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS 
 import main
+import base64
 
 # Flask App
 app = Flask(__name__)
@@ -40,6 +41,25 @@ def exec():
             main.Scanner.funciones(tk, tks)
     return jsonify({"message": "Ejecución terminada"})
 
+ 
+@app.route('/imagen', methods=['GET'])
+def imagen():
+    ruta_imagen = "E:\\FONDOS\\Hyrule_Winter-2awsly.jpg"
+
+    try:
+        # Lee la imagen en modo binario
+        with open(ruta_imagen, "rb") as imagen_file:
+            # Convierte la imagen a base64
+            base64_image = base64.b64encode(imagen_file.read()).decode('utf-8')
+
+        # Crea el JSON de respuesta con la imagen en base64 
+        return jsonify({"base64": base64_image})
+
+    except Exception as e:
+        # En caso de error, devuelve un mensaje de error en el JSON de respuesta
+        response_json = {"error": str(e)}
+        return jsonify(response_json), 500
+    
 
 
 
